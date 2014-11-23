@@ -1,9 +1,11 @@
 <?php
 
-class Model
+abstract class Model
 {
-    public function get_data()
-    {
-            
-    }
+    protected $data;
+    
+    public function __construct($data) {
+        $this->data = $data ;
+    }    
+    
 }

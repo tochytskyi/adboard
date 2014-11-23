@@ -1,5 +1,5 @@
 <?php
-
+define('ROOT', "http://adboard");
 error_reporting(8191);
 function errorHandler($errno, $errstr, $errfile, $errline) {
         if ($errno == E_ERROR ||

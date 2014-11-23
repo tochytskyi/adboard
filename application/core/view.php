@@ -2,14 +2,15 @@
 
 class View {
 
-    protected $title = "default title";
-
-    function generate($content_view, $template_view, $data = null) {
-        session_start();
-        if (is_array($data)) {
-            extract($data);
-        }
-        include 'application/views/' . $template_view;
+    protected $title = "Title";
+    public $data = array();
+    
+    public function __construct() {
+    }
+            
+    function display($content_view, $template_view = "template_view.php") {
+        require_once TPL_DIR.'/static/' . $template_view;
+        require_once TPL_DIR.'/'.$content_view;
     }
 
     function getTitle() {
@@ -17,8 +18,12 @@ class View {
     }
 
     function setTitle($title) {
-        $this->title = $title;
+        $this->title = "NF BBS | ".$title;
         return $title;
+    }
+    
+    function setData($data) {
+        $this->data = $data;
     }
 
 }

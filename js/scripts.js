@@ -1,116 +1,121 @@
 
-$(document).ready(function(){
-    $(".errorField").click(function(){$(this).hide(); });
-    $(".infoField").click(function(){$(this).hide(); });
+$(document).ready(function() {
+    $(".errorField").click(function() {
+        $(this).hide();
+    });
+    $(".infoField").click(function() {
+        $(this).hide();
+    });
+    $("#categories li:has(a)").click(function() {
+        window.location = $("a:first", this).attr("href");
+    });
+    $(".cat-adv-list .advert:has(a)").click(function() {
+        window.location = $("a:first", this).attr("href");
+    });
+    $(".content-wrapper").height($(document).height()-100);
+    $(".post").mouseover(function() {
+        $(this).children(".bg-date").children(".post-date").show();
+        $(this).children(".bg-date").show();
+    });
+    $(".post").mouseleave(function() {
+        $(this).children(".bg-date").children(".post-date").hide();
+        $(this).children(".bg-date").hide();
+    });
 });
 
 
-function msg(text){
+
+function showWriteForm(){
+   $('#write-form').show();
+   var body = $("html, body");
+   var topY = $('#write-form').offset().top;
+   body.animate({scrollTop:topY}, '500', 'swing');
+
+}
+
+function msg(text) {
     $(".infoField").hide();
     $(".errorField").hide();
     var close = "<div id=\"hideErrorField\"><img src=\"../images/close.png\" height=\"50\" width=\"50\"></div>";
-    $(".errorField").html(text+close);
-    $(".errorField").fadeIn(500);  
-    
+    $(".errorField").html(text + close);
+    $(".errorField").fadeIn(500);
+
 }
 
-function info(text){
+function info(text) {
     $(".errorField").hide();
     $(".infoField").hide();
     var close = "<div id=\"hideErrorField\"><img src=\"../images/close.png\" height=\"50\" width=\"50\"></div>";
-    $(".infoField").html(text+close);
-    $(".infoField").fadeIn(500);  
+    $(".infoField").html(text + close);
+    $(".infoField").fadeIn(500);
 }
 
-function login(){
-    var login = $("[name='login']").val();
-    var pwd = $("[name='pwd']").val();
-    
-    if(login==="" || pwd ===""){
-        msg("Пустой логин или пароль!");
-    }else{
-        data = "login="+login+"&pwd="+pwd;
+function signin(form) {
+    var login = $(form).children("[name=login]").val();
+    var pwd = $(form).children("[name=pwd]").val();
+    if (login === "" || pwd === "") {
+        msg("Пустий логін або пароль!");
+    } else {
+        var userData = {login: login, pwd: pwd};
         $.ajax({
             dataType: 'json',
             type: 'post',
-            url: 'login',
-            data: data,
-            success: function(data){
-              if(data.login==="true"){
-                  window.location = "user";
-              }else{
-                  msg(data.result); 
-              }
-              
+            url: '../user/signin',
+            data: userData,
+            success: function(data) {
+                if (data.result) {
+                    info(data.msg);
+                    setInterval(function() {
+                        window.location = "../user/cabinet";
+                    }, 3000);
+                } else {
+                    msg(data.msg);
+                }
+
             },
-            error: function(data){
-               msg("Извините, произошла ошибка. Попробуйте еще раз.");
+            error: function(data) {
+                msg("Помилка");
             }
-        }); 
+        });
     }
-    
+
+
 }
 
-function registration(){
-    
-    var name = $("[name='name']").val();
-    var sername = $("[name='sername']").val();
-    var email = $("[name='email']").val();
-    var pwd1 = $("[name='pwd1']").val();
-    var pwd2 = $("[name='pwd2']").val();
-    var login = $("[name='login']").val();
-    var checked = true;
-    
-    if(name.length < 2){
-        $("label[for='name'] a").html("слишком короткое имя");
-        checked = false;
-    }else{
-        $("label[for='name'] a").html("");
-    };
-    
-    if(sername.length < 2){
-        $("label[for='sername'] a").html("слишком короткая фамилия");
-        checked = false;
-    }else{
-        $("label[for='sername'] a").html("");
-    };
-    
-    if(login.length < 2){
-        $("label[for='login'] a").html("слишком короткий логин");
-        checked = false;
-    }else if(!checkLogin(login)){
-                $("label[for='login'] a").html("не корректный логин");
-                checked = false;
-            }else{
-                $("label[for='login'] a").html("");
-            };
-    
-    if(!checkEmail(email)){
-        $("label[for='email'] a").html("не коректный email");
-        checked = false;
-    }else{
-        $("label[for='email'] a").html("");
-    };
-    
-    if(pwd1.length < 4 || pwd2.length < 4 ){
-        $("label[for='pwd1'] a").html("слишком короткий пароль");
-        checked = false;
-    }else{
-        $("label[for='pwd1'] a").html("");
-    };
-    
+function signup(form) {
 
-    if(pwd1!==pwd2 || pwd1=="" || pwd2=="" ){
-        msg("Пароли не совпадают!");
-        checked = false;
-    }else{
-        $(".errorField").hide();
-    };
+    var name = $(form).children("input[name=name]").val();
+    var sername = $(form).children("input[name=sername]").val();
+    var city = $(form).children("input[name=city]").val();
+    var tel = $(form).children("input[name=tel]").val();
+    var email = $(form).children("input[name=email]").val();
+    var login = $(form).children("input[name=login]").val();
+    var pwd1 = $(form).children("input[name=pwd1]").val();
+    var pwd2 = $(form).children("input[name=pwd2]").val();
 
-    if(checked){
+    isValid = true;
+    
+    $('input[type="text"], input[type="password"]').each(function() {
+        if ($.trim($(this).val()) === '' || $(this).val()==="underfined" ) {
+            isValid = false;
+            $(this).addClass("errorInput");
+        }else{
+            $(this).removeClass("errorInput");
+        }
+    });
+    
+    if(!isValid){
+        return false;
+    }
+
+    if (pwd1 !== pwd2) {
+        msg("Паролі не співпадають!");
+    } else {
         var userData = {
             name: name,
             sername: sername,
+            city: city,
+            tel: tel,
             login: login,
             pwd: pwd1,
             email: email
@@ -118,192 +123,109 @@ function registration(){
         $.ajax({
             dataType: 'json',
             type: 'post',
-            url: 'registration',
+            url: '../user/signup',
             data: userData,
-            success: function(data){
-                if(data.result==="true"){
-                    info("Аккаунт успешно создан. На ваш email отправлено письмо.");
-                    setInterval(function(){window.location = "login"},3000);
-                }else if(data.result==="false"){
-                    msg("Ошибка.");
-                }else{
-                   msg(data.result); 
+            success: function(data) {
+                if (data.result) {
+                    info(data.msg);
+                    setInterval(function() {
+                        window.location = "../user/signin"
+                    }, 4000);
+                } else {
+                    msg(data.msg);
                 }
             },
-            error: function(data){
-               msg("Извините, произошла ошибка. Попробуйте еще раз.");
+            error: function(data) {
+                msg(data);
             }
-        }); 
+        });
     }
 }
 
-function registrationVK(){
-    var name = $("[name='name']").val();
-    var sername = $("[name='sername']").val();
-    var email = $("[name='email']").val();
-    var login = $("[name='login']").val();
-    var pwd1 = $("[name='pwd1']").val();
-    var checked = true;
+function newAdvert(form) {
+
+    var title = $(form).children("input[name=title]").val();
+    var holder = $(form).children("input[name=holder]").val();
+    var type = $(form).children("select[name=type]").val();
+    var tel = $(form).children("input[name=tel]").val();
+    var email = $(form).children("input[name=email]").val();
+    var content = $(form).children("textarea[name=content]").val();
+    var category = $(form).children("select[name=category]").val();
+
+    isValid = true;
     
-    if(name.length < 2){
-        $("label[for='name'] a").html("слишком короткое имя");
-        checked = false;
-    }else{
-        $("label[for='name'] a").html("");
-    };
+    $('input[type="text"], textarea').each(function() {
+        if ($.trim($(this).val()) === '' || $(this).val()==="underfined" ) {
+            isValid = false;
+            $(this).addClass("errorInput");
+        }else{
+            $(this).removeClass("errorInput");
+        }
+    });
     
-    if(sername.length < 2){
-        $("label[for='sername'] a").html("слишком короткая фамилия");
-        checked = false;
-    }else{
-        $("label[for='sername'] a").html("");
-    };
+    if(!isValid){
+        return false;
+    }
+
     
-    if(login.length < 2){
-        $("label[for='login'] a").html("слишком короткий логин");
-        checked = false;
-    }else if(!checkLogin(login)){
-                $("label[for='login'] a").html("не корректный логин");
-                checked = false;
-            }else{
-                $("label[for='login'] a").html("");
-            };
-    if(!checkEmail(email) || email.length<4){
-        $("label[for='email'] a").html("не коректный email");
-        checked = false;
-    }else{
-        $("label[for='email'] a").html("");
-    };
-    if(checked){
         var userData = {
-            name: name,
-            sername: sername,
-            login: login,
-            pwd: pwd1,
+            title: title,
+            holder: holder,
+            type: type,
+            tel: tel,
             email: email,
-            vk: true
+            content: content,
+            category: category
         };
         $.ajax({
             dataType: 'json',
             type: 'post',
-            url: '../registration',
+            url: '../user/addadvert',
             data: userData,
-            success: function(data){
-                if(data.result==="true"){
-                    info("Аккаунт успешно создан. На ваш email отправлено письмо.");
-                    setInterval(function(){window.location = "../user"},3000);
-                }else if(data.result==="false"){
-                    msg("Ошибка.");
-                }else{
-                   msg(data.result); 
-                }
-            },
-            error: function(data){
-               msg("Извините, произошла ошибка. Попробуйте еще раз.");
-            }
-        }); 
-    }
-}
-
-function addCard(){
-    var number = $("[name='number']").val();
-    var company = $("[name='company']").val();
-    var checked = true;
-    
-    if(number.length<3 || company.length<3){
-        msg("Слишком короткие данные!");
-        checked = false;
-    }
-    if(!checkNumber(number)){
-        msg("Не коретный номер карты!");
-        checked = false;
-    }
-    
-    if(checked){
-   
-        var card = {
-            number: number,
-            company: company
-        }
-
-        $.ajax({
-                dataType: 'json',
-                type: 'post',
-                url: '../addCard',
-                data: card,
-                success: function(data){
-                    if(data.result){
-                        info(data.msg);
-                        setInterval(function(){window.location = "../user"},3000);
-                    }else{
-                        msg(data.msg);
-                    }
-                },
-                error: function(data){
-                   msg("Извините, произошла ошибка. Попробуйте еще раз.");
-                }
-            });         
-    }
-    
-}
-
-function deleteCard(id){
-    if (confirm("Удалить карту?")) {
-        $.ajax({
-            dataType: 'json',
-            type: 'post',
-            url: '../deleteCard',
-            data: {id:id},
-            success: function(data){
-                if(data.result){
+            success: function(data) {
+                if (data.result) {
                     info(data.msg);
-                    setInterval(function(){window.location = "../user"},3000);
-                }else{
+                    setInterval(function() {
+                        window.location = "../user/adverts"
+                    }, 4000);
+                } else {
                     msg(data.msg);
                 }
             },
-            error: function(data){
-               msg("Извините, произошла ошибка. Попробуйте еще раз.");
+            error: function(data) {
+                msg(data);
             }
-        }); 
-    } else {
-        /*window.location = "../user";*/
-    }
-
+        });
 }
 
-function showSearchFiled(){
-    $("#search-filed").fadeToggle(500)
-}
-
-function search(text){
-    if (text !== "") {
-        $(".pagination").hide();
-    }else{
-        $(".pagination").show();
-    }
-    $.ajax({
-        dataType: 'json',
-        type: 'post',
-        url: '../search',
-        data: {text: text},
-        success: function(data) {
-            if (data.card1) {
-                var result = "<tr><td>Номер карты</td><td>Организация</td><td></td></tr>";
-                for (property in data) {
-                    result += "<tr><td>" + data[property].number + "</td><td>" + data[property].company + "</td>" +
-                            "<td width='50'><a href='' onclick='deleteCard(" + data[property].id + ")'>[удалить]</a></td><tr/>";
+function addToBookmarks(id,userid) {
+    
+        var userData = {id: id, userid: userid};
+        $.ajax({
+            dataType: 'json',
+            type: 'post',
+            url: '../addtobookmarks',
+            data: userData,
+            success: function(data) {
+                if (data.result) {
+                    alert(data.msg);
+                } else {
+                    msg(data.msg);
                 }
-                $("#cardsList").html(result);
-            } else {
-                $("#cardsList").html("<center>Нет совпадений</center>");
+            },
+            error: function(data) {
+                msg(data);
             }
-        },
-        error: function(data) {
-            msg("Извините, произошла ошибка. Попробуйте еще раз.");
-        }
-    }); 
+        });
+}
 
+function sendMsg(){
+    alert("Лист відправлено автору");
+}
+
+function search() {
+    //var text = $(form).children("#search").val();
+    alert();
 }
 
 function checkEmail(email) {
@@ -320,55 +242,3 @@ function checkNumber(value) {
     return re.test(value);
 }
 
-function feedbackSend(){
-    var name = $("[name='name']").val();
-    var email = $("[name='email']").val();
-    var text = $("[name='text']").val();
-    var checked = true;
-    
-    if(name.length < 2){
-        $("label[for='name'] a").html("слишком короткое имя");
-        checked = false;
-    }else{
-        $("label[for='name'] a").html("");
-    };
-    
-    if(!checkEmail(email) || email.length<4){
-        $("label[for='email'] a").html("не коректный email");
-        checked = false;
-    }else{
-        $("label[for='email'] a").html("");
-    };
-    
-    if(text.length < 2){
-        msg("Слишком корткий текст сообщения!");
-        checked = false;
-    }
-    
-    if(checked){
-        var userData = {
-            name: name,
-            email: email,
-            text: text
-        };
-        $.ajax({
-            dataType: 'json',
-            type: 'post',
-            url: '../feedback',
-            data: userData,
-            success: function(data){
-                if(data.result){
-                    info(data.msg);
-                    setInterval(function(){window.location = "../user"},3000);
-                }else{
-                    msg(data.msg);
-                }
-            },
-            error: function(data){
-               msg("Извините, произошла ошибка. Попробуйте еще раз.");
-            }
-        }); 
-    }
-}
-
- 

@@ -43,7 +43,7 @@ class DB {
         return $value;
     }
     
-    public function sqlPtotect($str){
+    public function sqlProtect($str){
         if(strpos($str, "SELECT") ||
            strpos($str, "LIKE") ||
            strpos($str, "OR") ||

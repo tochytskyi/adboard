@@ -1,10 +1,12 @@
 <?php
 
+define(TPL_DIR, "application/views");
+
 class DBConfig{
     const HOST = "localhost";
     const PASS = "root";
     const USER = "root";
-    const DBNAME = "cards";
+    const DBNAME = "board";
 }
 
 

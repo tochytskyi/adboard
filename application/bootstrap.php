@@ -10,6 +10,7 @@ function error($msg){
     die("<br/><center><h2 style='color:red'>".$msg."</h2></center>");
 }
 
+session_start();
 // подключаем файлы ядра
 require_once 'core/model.php';
 require_once 'core/view.php';

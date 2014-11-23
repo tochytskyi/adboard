@@ -2,54 +2,57 @@
 
 class Route {
 
-    const CONTROLLER = "Site"; //main
-
-    static protected $params = array();
-
     static function start() {
-        // by default
-        $controller_name = self::CONTROLLER;
-        $action_name = 'index';
-
+        
+        $CONTROLLER = "index"; //main controller
+        $ACTION = "index"; //default action
+        $params = array();
         $routes = explode('/', $_SERVER['REQUEST_URI']);
 
-        // action
+        /* controller */
         if (!empty($routes[1])) {
-            $action_name = $routes[1];
+            $CONTROLLER = $routes[1];
         }
+        
+        /* action */
+        if (!empty($routes[2])) {
+            $ACTION = $routes[2];
+        }
+        
+        
         // get parameters if they exist, else empty array
-        self::explodeParameters($routes[2]);
+        //self::explodeParameters($routes[2]);
 
-        // add prefixes
-        $model_name = 'Model_' . $action_name;
-        $controller_name = 'Controller_' . $controller_name;
-        $action_name = 'action_' . $action_name;
+        /* add prefixes */
+        $model_name = 'model_' . $CONTROLLER;
+        $controller_name = 'controller_' . $CONTROLLER;
+        $action_name = 'action_' . $ACTION;
 
 
         // pick MODEL name and path if it exist
         $model_file = strtolower($model_name) . '.php';
         $model_path = "application/models/" . $model_file;
         if (file_exists($model_path)) {
-            include "application/models/" . $model_file;
-        } else {
+            require_once "application/models/" . $model_file;
+        }else{
             $model_name = "";
+            // if controller doesn't have the model
         }
 
         // pick CONTROLLER name and path if it exist
         $controller_file = strtolower($controller_name) . '.php';
         $controller_path = "application/controllers/" . $controller_file;
         if (file_exists($controller_path)) {
-            include "application/controllers/" . $controller_file;
+            require_once "application/controllers/" . $controller_file;
+            // create controller with parameters
+            $controller = new $controller_name($model_name);
         } else {
             Route::ErrorPage404();
         }
+    
 
-        // create controller with parameters
-        $controller = new $controller_name($model_name);
-        $action = $action_name;
-
-        if (method_exists($controller, $action)) {
-            $controller->$action(self::$params);
+        if (method_exists($controller, $action_name)) {
+            $controller->$action_name();
         } else {
             Route::ErrorPage404();
         }
@@ -60,7 +63,7 @@ class Route {
         $host = 'http://' . $_SERVER['HTTP_HOST'] . '/';
         header('HTTP/1.1 404 Not Found');
         header("Status: 404 Not Found");
-        header('Location:' . $host . '404');
+        Controller::action_404();
     }
 
     static private function explodeParameters($paramsArray) {
